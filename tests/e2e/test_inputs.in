@@ -1,0 +1,8 @@
+Name: Return 0
+Returncode: 0
+File: main.cpp
+--------------
+int main()
+{
+	return 0;
+}
