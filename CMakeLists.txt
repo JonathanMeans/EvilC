@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.10)
 project(EvilC)
 
 # add the executable
-add_executable(EvilC main.cpp "tests/unittests/test_smoke.cpp")
+add_executable(EvilC main.cpp)
 
 enable_testing()
 
