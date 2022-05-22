@@ -1,7 +1,8 @@
 import os
 import subprocess
-import sys
 from pathlib import Path
+
+import e2e_config
 
 def parse_test(filename):
 	test_spec = {'Content': ''}
@@ -30,7 +31,7 @@ def all_tests():
 
 
 def main():
-	executable = sys.argv[1]
+	executable = e2e_config.compiler_binary
 	for test_spec in all_tests():
 		file_name = test_spec["File"]
 		with open(file_name, "w") as f:
@@ -38,6 +39,7 @@ def main():
 		compiler_returncode = subprocess.run([executable, file_name]).returncode
 		assert compiler_returncode == 0
 		compiled_file_name = Path(file_name).with_suffix(".out")
+		print(compiled_file_name)
 		actual_returncode = subprocess.run(compiled_file_name).returncode
 		expected_returncode = test_spec["Returncode"]
 		assert actual_returncode == expected_returncode
