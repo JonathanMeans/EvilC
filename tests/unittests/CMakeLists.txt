@@ -17,3 +17,4 @@ target_include_directories(unittests PUBLIC ${gtest_SOURCE_DIR} ${gtest_SOURCE_D
 include(GoogleTest)
 gtest_discover_tests(unittests)
 add_test(unittests unittests)
+
