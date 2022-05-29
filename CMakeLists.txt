@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(EvilC)
 
 # add the executable
-add_executable(EvilC main.cpp "platform.h" "platform_windows.h")
+add_executable(EvilC main.cpp "platform.h" "platform_windows.h" platform_macos.h)
 
 enable_testing()
 

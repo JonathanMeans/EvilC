@@ -37,7 +37,7 @@ define i32 @main() {
 
     try
     {
-        runProgram("clang", llvmIrPath.string());
+        runProgram("clang", {llvmIrPath.string()});
     }
     catch (...)
     {

@@ -3,6 +3,8 @@
 
 #if defined(WIN32) || defined(_WIN32)
 #include "platform_windows.h"
+#elif defined(__APPLE__)
+#include "platform_macos.h"
 #endif
 
 #endif
