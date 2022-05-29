@@ -51,7 +51,11 @@ def main():
 		file_name = test_spec.filename
 		with open(file_name, "w") as f:
 			f.write(test_spec.content)
-		compiler_returncode = subprocess.run([executable, file_name]).returncode
+		p = subprocess.run([executable, file_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		compiler_returncode = p.returncode
+		print(p.stdout)
+		print(p.stderr)
+		print(compiler_returncode)
 		assert compiler_returncode == 0
 		compiled_file_name = Path(file_name).with_suffix(".out")
 		print(compiled_file_name)
@@ -59,6 +63,7 @@ def main():
 		expected_returncode = test_spec.returncode
 		assert actual_returncode == expected_returncode
 		os.remove(file_name)
+		os.remove(compiled_file_name)
 
 
 if __name__ == '__main__':

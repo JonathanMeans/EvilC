@@ -1,6 +1,55 @@
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 
-int main()
+#include "platform.h"
+
+int main(int argc, char** argv)
 {
+    if (argc != 2)
+    {
+        std::cerr << "Usage: " << argv[0] << "<input file>\n";
+        return 1;
+    }
+
+    const std::string inputFile = argv[1];
+    std::ifstream inputStream(inputFile);
+    if (!inputStream)
+    {
+        std::cerr << "Input file " << argv << " does not exist\n";
+        return 2;
+    }
+
+    std::filesystem::path inputPath(inputFile);
+    std::filesystem::path outputPath(inputPath.stem());
+    outputPath += ".out";
+
+    std::filesystem::path llvmIrPath(inputPath.stem());
+    llvmIrPath += ".ll";
+
+    {
+        std::ofstream llvmIrStream(llvmIrPath);
+        llvmIrStream << R"(
+define i32 @main() {   
+  ret i32 0
+} )";
+    }
+
+    try
+    {
+        runProgram("clang", llvmIrPath.string());
+    }
+    catch (...)
+    {
+        std::cerr << "Exception occurred calling hello\n";
+    }
+
+    std::filesystem::path compiledExePath("a.exe");
+    std::filesystem::copy(compiledExePath, outputPath);
+
+    // TODO: delete a.exe
+
+    // TODO: actually do the work
+
     return 0;
 }
