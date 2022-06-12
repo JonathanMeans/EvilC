@@ -4,7 +4,8 @@
 
 #include <iostream>
 
-void runProgram(const std::string& programName, std::string arguments)
+void runProgram(const std::string& programName,
+                const std::vector<std::string>& arguments)
 {
     STARTUPINFOA si;
     PROCESS_INFORMATION pi;
@@ -14,11 +15,18 @@ void runProgram(const std::string& programName, std::string arguments)
     si.cb = sizeof(si);
     ZeroMemory(&pi, sizeof(pi));
 
+    // TODO: Error checking
     char windowsArguments[100];
-    strcpy(windowsArguments, arguments.c_str());
+    strcpy(windowsArguments, programName.c_str());
+    strcat(windowsArguments, " ");
+    for (const auto& argument : arguments)
+    {
+        strcat(windowsArguments, argument.c_str());
+        strcat(windowsArguments, " ");
+    }
 
     // start the program up
-    if (!CreateProcessA(programName.c_str(),  // the path
+    if (!CreateProcessA(NULL,
                         windowsArguments,  // Command line
                         NULL,  // Process handle not inheritable
                         NULL,  // Thread handle not inheritable
@@ -30,7 +38,7 @@ void runProgram(const std::string& programName, std::string arguments)
                         &pi  // Pointer to PROCESS_INFORMATION structure
                         ))
     {
-        std::cerr << "CreateProcess failed\n";
+        printf("CreateProcess failed (%d).\n", GetLastError());
         return;
     }
     WaitForSingleObject(pi.hProcess, INFINITE);

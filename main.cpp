@@ -6,6 +6,7 @@
 
 int main(int argc, char** argv)
 {
+    std::cerr << "Main\n";
     if (argc != 2)
     {
         std::cerr << "Usage: " << argv[0] << "<input file>\n";
@@ -34,21 +35,26 @@ define i32 @main() {
   ret i32 0
 } )";
     }
-
     try
     {
-        runProgram("clang", {llvmIrPath.string()});
+        runProgram("clang", {"-m32", llvmIrPath.string()});
     }
     catch (...)
     {
         std::cerr << "Exception occurred calling hello\n";
     }
 
-    std::filesystem::path compiledExePath("a.out");
-   // std::filesystem::path compiledExePath("a.exe");
+    std::filesystem::path compiledExePath(DEFAULT_OUTPUT_FILENAME);
+    if (std::filesystem::exists(outputPath))
+    {
+        std::filesystem::remove(outputPath);
+    }
+    if (!std::filesystem::exists(compiledExePath))
+    {
+        std::cerr << std::filesystem::current_path() << "\n";
+    }
     std::filesystem::copy(compiledExePath, outputPath);
-
-    // TODO: delete a.exe
+    std::filesystem::remove(compiledExePath);
 
     // TODO: actually do the work
 

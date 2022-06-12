@@ -51,7 +51,7 @@ def main():
 		file_name = test_spec.filename
 		with open(file_name, "w") as f:
 			f.write(test_spec.content)
-		p = subprocess.run([executable, file_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		p = subprocess.run([executable, file_name], capture_output=True, text=True)
 		compiler_returncode = p.returncode
 		print(p.stdout)
 		print(p.stderr)
