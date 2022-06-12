@@ -44,7 +44,8 @@ define i32 @main() {
         std::cerr << "Exception occurred calling hello\n";
     }
 
-    std::filesystem::path compiledExePath("a.exe");
+    std::filesystem::path compiledExePath("a.out");
+   // std::filesystem::path compiledExePath("a.exe");
     std::filesystem::copy(compiledExePath, outputPath);
 
     // TODO: delete a.exe
