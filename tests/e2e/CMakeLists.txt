@@ -9,8 +9,6 @@ file(GENERATE
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/run_e2e_tests.py
     ${CMAKE_CURRENT_BINARY_DIR}/run_e2e_tests.py COPYONLY)
-#file(COPY ${CMAKE_CURRENT_LIST_DIR}/run_e2e_tests.py
-#     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 file(GLOB TEST_INPUTS ${CMAKE_CURRENT_LIST_DIR}/*.in)
 

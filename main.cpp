@@ -37,14 +37,14 @@ define i32 @main() {
     }
     try
     {
-        runProgram("clang", {"-m32", llvmIrPath.string()});
+        Platform().runProgram("clang", {"-m32", llvmIrPath.string()});
     }
     catch (...)
     {
         std::cerr << "Exception occurred calling hello\n";
     }
 
-    std::filesystem::path compiledExePath(DEFAULT_OUTPUT_FILENAME);
+    std::filesystem::path compiledExePath(Platform().defaultOutputFilename);
     if (std::filesystem::exists(outputPath))
     {
         std::filesystem::remove(outputPath);
