@@ -14,8 +14,4 @@ public:
                     const std::vector<std::string>& arguments) const override;
 };
 
-void runProgram(const std::string& programName,
-                const std::vector<std::string>& arguments)
-{
-}
 #endif  // EVILC_PLATFORM_MACOS_H

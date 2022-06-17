@@ -1,4 +1,4 @@
-#if defined(APPLE)
+#if defined(__APPLE__)
 #include <unistd.h>
 
 #include <vector>
