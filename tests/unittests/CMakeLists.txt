@@ -8,11 +8,11 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 add_executable(
-    unittests "test_smoke.cpp")
+    unittests "test_generating_executable.cpp")
 
 enable_testing()
 
-target_link_libraries(unittests gtest gtest_main)
+target_link_libraries(unittests gtest gtest_main EvilCLib)
 target_include_directories(unittests PUBLIC ${gtest_SOURCE_DIR} ${gtest_SOURCE_DIR}/include)
 include(GoogleTest)
 gtest_discover_tests(unittests)

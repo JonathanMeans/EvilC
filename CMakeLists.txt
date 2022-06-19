@@ -7,7 +7,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(EvilC)
 
 # add the executable
-add_executable(EvilC main.cpp "platform.h" "platform_windows.h" platform_macos.h "platform_windows.cpp" "Platform.cpp" "platform_macos.cpp")
+add_library(EvilCLib STATIC "platform.h" "platform_windows.h" platform_macos.h "platform_windows.cpp" "Platform.cpp" "platform_macos.cpp" "backend.h" "backend.cpp")
+target_include_directories(EvilCLib PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+add_executable(EvilC main.cpp "backend.h" "backend.cpp")
+target_link_libraries(EvilC EvilCLib)
 
 enable_testing()
 
