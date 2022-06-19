@@ -53,16 +53,21 @@ def main():
         file_name = test_spec.filename
         with open(file_name, "w") as f:
             f.write(test_spec.content)
+
         p = subprocess.run([executable, file_name], capture_output=True, text=True)
-        compiler_returncode = p.returncode
-        assert compiler_returncode == 0, format_process_output(p.stdout, p.stderr, compiler_returncode)
+        assert_on_process_returncode(p, 1)
+
         compiled_file_name = Path(os.getcwd()) / Path(file_name).with_suffix(".out")
-        actual_returncode = subprocess.run(compiled_file_name).returncode
-        expected_returncode = test_spec.returncode
-        assert actual_returncode == expected_returncode
+        p = subprocess.run(compiled_file_name)
+        assert_on_process_returncode(p, test_spec.returncode)
+
         os.remove(file_name)
         os.remove(compiled_file_name)
 
+
+def assert_on_process_returncode(process_result, expected_returncode):
+    assert process_result.returncode == expected_returncode, format_process_output(
+        process_result.stdout, process_result.stderr, process_result.returncode)
 
 def format_process_output(stdout, stderr, return_code):
     separator = "-" * 10
