@@ -46,7 +46,8 @@ void PlatformMacOS::runProgram(const std::string& programName,
                         // is a copy
         close(fds[1]);  // file descriptor unused in child
         int n = arguments.size();
-        char** arg_list = new char*[n+1];
+        // TODO: Free arg_list
+        char** arg_list = new char*[n + 1];
         for (int i = 0; i < n; i++)
         {
             char* arg = strdup(arguments[i].c_str());

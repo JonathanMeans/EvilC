@@ -55,7 +55,7 @@ def main():
             f.write(test_spec.content)
 
         p = subprocess.run([executable, file_name], capture_output=True, text=True)
-        assert_on_process_returncode(p, 1)
+        assert_on_process_returncode(p, 0)
 
         compiled_file_name = Path(os.getcwd()) / Path(file_name).with_suffix(".out")
         p = subprocess.run(compiled_file_name)

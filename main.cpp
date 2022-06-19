@@ -6,7 +6,7 @@
 
 int main(int argc, char** argv)
 {
-    std::cerr << "Main\n";
+    /*
     if (argc != 2)
     {
         std::cerr << "Usage: " << argv[0] << "<input file>\n";
@@ -20,8 +20,10 @@ int main(int argc, char** argv)
         std::cerr << "Input file " << argv << " does not exist\n";
         return 2;
     }
+    */
 
-    std::filesystem::path inputPath(inputFile);
+    // std::filesystem::path inputPath(inputFile);
+    std::filesystem::path inputPath("main.ll");
     std::filesystem::path outputPath(inputPath.stem());
     outputPath += ".out";
 
@@ -45,14 +47,17 @@ define i32 @main() {
     }
 
     std::filesystem::path compiledExePath(Platform().defaultOutputFilename);
+    if (!std::filesystem::exists(compiledExePath))
+    {
+        throw std::runtime_error(
+                std::string("Clang failed to create expected file ") +
+                compiledExePath.string());
+    }
     if (std::filesystem::exists(outputPath))
     {
         std::filesystem::remove(outputPath);
     }
-    if (!std::filesystem::exists(compiledExePath))
-    {
-        std::cerr << std::filesystem::current_path() << "\n";
-    }
+
     std::filesystem::copy(compiledExePath, outputPath);
     std::filesystem::remove(compiledExePath);
 

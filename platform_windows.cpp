@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 
+#include <numeric>
 #include <vector>
 
 #include "platform.h"
@@ -22,19 +23,22 @@ void PlatformWindows::runProgram(
     si.cb = sizeof(si);
     ZeroMemory(&pi, sizeof(pi));
 
-    // TODO: Error checking
-    char windowsArguments[100];
-    strcpy(windowsArguments, programName.c_str());
-    strcat(windowsArguments, " ");
-    for (const auto& argument : arguments)
-    {
-        strcat(windowsArguments, argument.c_str());
-        strcat(windowsArguments, " ");
-    }
+    auto appendArgument =
+            [](const std::string& initial, const std::string& appending)
+    { return initial + " " + appending; };
+    std::string fullArgumentString = std::accumulate(arguments.begin(),
+                                                     arguments.end(),
+                                                     programName,
+                                                     appendArgument);
+    std::vector<char> windowsArguments(fullArgumentString.size() + 1);
+    strcpy_s(windowsArguments.data(),
+             windowsArguments.size(),
+             fullArgumentString.c_str());
+    windowsArguments[windowsArguments.size() - 1] = NULL;
 
     // start the program up
     if (!CreateProcessA(NULL,
-                        windowsArguments,  // Command line
+                        windowsArguments.data(),  // Command line
                         NULL,  // Process handle not inheritable
                         NULL,  // Thread handle not inheritable
                         FALSE,  // Set handle inheritance to FALSE
@@ -48,6 +52,7 @@ void PlatformWindows::runProgram(
         printf("CreateProcess failed (%d).\n", GetLastError());
         return;
     }
+
     WaitForSingleObject(pi.hProcess, INFINITE);
     // Close process and thread handles.
     CloseHandle(pi.hProcess);
