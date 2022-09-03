@@ -41,16 +41,17 @@ def parse_test(filename) -> TestSpec:
 
 
 def all_tests():
-    cwd = os.path.dirname(os.path.realpath(__file__))
-    for f in os.listdir(cwd):
+    test_dir = e2e_config.test_input_dir
+    for f in os.listdir(test_dir):
         if f.endswith('.in'):
-            yield parse_test(os.path.join(cwd, f))
+            yield parse_test(os.path.join(test_dir, f))
 
 
 def main():
     executable = e2e_config.compiler_binary
     for test_spec in all_tests():
         file_name = test_spec.filename
+        print(f"Running {test_spec.name}")
         with open(file_name, "w") as f:
             f.write(test_spec.content)
 

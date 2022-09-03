@@ -5,4 +5,5 @@ This file is a stub intended to make development easier.
 
 THIS IS NOT THE REAL E2E_CONFIG! 
 """
-compiled_binary = ""
+compiled_binary = "" 
+test_input_dir = ""

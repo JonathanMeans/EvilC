@@ -5,14 +5,10 @@ endif()
 
 file(GENERATE 
     OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/e2e_config.py" 
-    CONTENT "compiler_binary=\"$<TARGET_FILE:EvilC>\"")
+    CONTENT "compiler_binary=\"$<TARGET_FILE:EvilC>\"\ntest_input_dir=\"${CMAKE_CURRENT_BINARY_DIR}\"")
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/run_e2e_tests.py
     ${CMAKE_CURRENT_BINARY_DIR}/run_e2e_tests.py COPYONLY)
-
-file(GLOB TEST_INPUTS ${CMAKE_CURRENT_LIST_DIR}/*.in)
-
-file(COPY ${TEST_INPUTS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_test(NAME E2ETests 
          COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/run_e2e_tests.py)
