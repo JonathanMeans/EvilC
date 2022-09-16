@@ -23,9 +23,10 @@ void PlatformWindows::runProgram(
     si.cb = sizeof(si);
     ZeroMemory(&pi, sizeof(pi));
 
-    auto appendArgument =
-            [](const std::string& initial, const std::string& appending)
-    { return initial + " " + appending; };
+    auto appendArgument = [](const std::string& initial,
+                             const std::string& appending) {
+        return initial + " " + appending;
+    };
     std::string fullArgumentString = std::accumulate(arguments.begin(),
                                                      arguments.end(),
                                                      programName,
@@ -38,15 +39,15 @@ void PlatformWindows::runProgram(
 
     // start the program up
     if (!CreateProcessA(NULL,
-                        windowsArguments.data(),  // Command line
-                        NULL,  // Process handle not inheritable
-                        NULL,  // Thread handle not inheritable
-                        FALSE,  // Set handle inheritance to FALSE
-                        CREATE_NEW_CONSOLE,  // Opens file in a separate console
-                        NULL,  // Use parent's environment block
-                        NULL,  // Use parent's starting directory
-                        &si,  // Pointer to STARTUPINFO structure
-                        &pi  // Pointer to PROCESS_INFORMATION structure
+                        windowsArguments.data(), // Command line
+                        NULL, // Process handle not inheritable
+                        NULL, // Thread handle not inheritable
+                        FALSE, // Set handle inheritance to FALSE
+                        CREATE_NEW_CONSOLE, // Opens file in a separate console
+                        NULL, // Use parent's environment block
+                        NULL, // Use parent's starting directory
+                        &si, // Pointer to STARTUPINFO structure
+                        &pi // Pointer to PROCESS_INFORMATION structure
                         ))
     {
         printf("CreateProcess failed (%d).\n", GetLastError());

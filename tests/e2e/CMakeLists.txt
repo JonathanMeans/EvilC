@@ -5,7 +5,7 @@ endif()
 
 file(GENERATE 
     OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/e2e_config.py" 
-    CONTENT "compiler_binary=\"$<TARGET_FILE:EvilC>\"\ntest_input_dir=\"${CMAKE_CURRENT_BINARY_DIR}\"")
+    CONTENT "compiler_binary=\"$<TARGET_FILE:EvilC>\"\ntest_input_dir=\"${CMAKE_CURRENT_LIST_DIR}\"")
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/run_e2e_tests.py
     ${CMAKE_CURRENT_BINARY_DIR}/run_e2e_tests.py COPYONLY)

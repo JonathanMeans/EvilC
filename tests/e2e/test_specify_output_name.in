@@ -1,0 +1,10 @@
+Name: Specify output file
+Returncode: 0
+File: main.cpp
+Commandline: main.cpp -o test.exe
+Binary: test.exe
+--------------
+int main()
+{
+	return 0;
+}
