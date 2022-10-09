@@ -10,6 +10,23 @@ void skipWhitespace(std::istream& source)
         source.get();
 }
 
+char rot13(char c)
+{
+    if (isupper(c))
+    {
+        if (c + 13 <= 'Z')
+            return c + 13;
+        return c - 13;
+    }
+    if (islower(c))
+    {
+        if (c + 13 <= 'z')
+            return c + 13;
+        return c - 13;
+    }
+    return c;
+}
+
 const std::map<std::string, TokenType> KEYWORDS = {{"int", TokenType::INT},
                                                    {"return",
                                                     TokenType::RETURN}};
@@ -20,8 +37,25 @@ bool Lexer::Token::operator==(const Token& rhs) const
     return this->type == rhs.type && this->lexeme == rhs.lexeme;
 }
 
-Lexer::Lexer(std::istream& source) : mSource(source)
+Lexer::Lexer(std::istream& source, const Options& options) :
+    mSource(source), mOptions(options)
 {
+}
+
+char Lexer::peek() const
+{
+    char c = mSource.peek();
+    if (mOptions.rot13)
+        c = rot13(c);
+    return c;
+}
+
+char Lexer::get()
+{
+    char c = mSource.get();
+    if (mOptions.rot13)
+        c = rot13(c);
+    return c;
 }
 
 bool Lexer::hasNext() const
@@ -33,13 +67,13 @@ Lexer::Token Lexer::next()
 {
     std::string lexeme;
     skipWhitespace(mSource);
-    char c = mSource.get();
+    char c = get();
     if (isalpha(c))
     {
         lexeme.push_back(c);
-        while (isalnum(mSource.peek()))
+        while (isalnum(peek()))
         {
-            lexeme.push_back(mSource.get());
+            lexeme.push_back(get());
         }
 
         const auto keywordIt = KEYWORDS.find(lexeme);
@@ -51,9 +85,9 @@ Lexer::Token Lexer::next()
     else if (isdigit(c))
     {
         lexeme.push_back(c);
-        while (isdigit(mSource.peek()))
+        while (isdigit(peek()))
         {
-            lexeme.push_back(mSource.get());
+            lexeme.push_back(get());
         }
         return {TokenType::INTEGER, lexeme};
     }

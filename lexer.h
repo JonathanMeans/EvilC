@@ -37,13 +37,22 @@ public:
         bool operator==(const Token&) const;
     };
 
-    explicit Lexer(std::istream& source);
+    struct Options
+    {
+        bool rot13 = false;
+    };
+
+    explicit Lexer(std::istream& source, const Options& options = Options());
 
     bool hasNext() const;
 
     Token next();
 
 private:
+    char peek() const;
+    char get();
+
     std::istream& mSource;
+    Options mOptions;
 };
 #endif
