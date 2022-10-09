@@ -8,7 +8,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 add_executable(
-    unittests "test_generating_executable.cpp" "test_argument_parser.cpp")
+    unittests "test_generating_executable.cpp" "test_argument_parser.cpp" "test_lexer.cpp")
 
 enable_testing()
 
