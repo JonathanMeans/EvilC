@@ -1,0 +1,13 @@
+Name: Test Lexer error
+CompilerReturncode: 1
+File: main.cpp
+Binary: test.exe
+CompilerErr: --------------
+error:3:1: stray '@' in program
+--------------
+
+int main()
+{
+@
+	return 0;
+}

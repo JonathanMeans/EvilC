@@ -4,6 +4,7 @@
 
 #include "ArgumentParser.h"
 #include "backend.h"
+#include "lexer.h"
 #include "platform.h"
 
 int main(int argc, char** argv)
@@ -32,6 +33,12 @@ int main(int argc, char** argv)
     }
 
     std::filesystem::path inputPath(inputFile);
+    ErrorReporter errors(std::cerr);
+    Lexer lexer(inputStream, errors, {false});
+    while (lexer.hasNext())
+        lexer.next();
+    if (errors.hasErrors())
+        return 1;
     std::filesystem::path outputPath;
     if (args.find("-o") != args.end())
     {

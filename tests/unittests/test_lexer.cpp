@@ -5,61 +5,64 @@
 TEST(LexerTest, LexerWithRot13Encoding)
 {
     std::stringstream ss;
-    ss << "vag znva() { erghea 0; }\n@";
+    ss << "vag znva() {\nerghea 0; }\n";
     ss.seekg(0);
 
     Lexer::Options options;
     options.rot13 = true;
-    Lexer lexer(ss, options);
-    std::vector<Lexer::Token> lexemes;
+    ErrorReporter errors(std::cout);
+    Lexer lexer(ss, errors, options);
+    std::vector<Token> lexemes;
     while (lexer.hasNext())
     {
         lexemes.push_back(lexer.next());
     }
-    std::vector<Lexer::Token> expected = {{TokenType::INT, "int"},
-                                          {TokenType::IDENTIFIER, "main"},
-                                          {TokenType::LPAREN, "("},
-                                          {TokenType::RPAREN, ")"},
-                                          {TokenType::LBRACE, "{"},
-                                          {TokenType::RETURN, "return"},
-                                          {TokenType::INTEGER, "0"},
-                                          {TokenType::SEMICOLON, ";"},
-                                          {TokenType::RBRACE, "}"},
-                                          {TokenType::ERROR, "@"},
-                                          {TokenType::EOS, ""}};
+    const std::vector<Token> expected = {
+            {TokenType::INT, "int", {0, 1, 1}},
+            {TokenType::IDENTIFIER, "main", {4, 1, 5}},
+            {TokenType::LPAREN, "(", {8, 1, 9}},
+            {TokenType::RPAREN, ")", {9, 1, 10}},
+            {TokenType::LBRACE, "{", {11, 1, 12}},
+            {TokenType::RETURN, "return", {13, 2, 1}},
+            {TokenType::INTEGER, "0", {20, 2, 8}},
+            {TokenType::SEMICOLON, ";", {21, 2, 9}},
+            {TokenType::RBRACE, "}", {23, 2, 11}},
+            {TokenType::EOS, "", {25, 3, 1}}};
     EXPECT_EQ(expected.size(), lexemes.size());
     for (size_t ii = 0; ii < expected.size(); ++ii)
     {
-        EXPECT_TRUE(expected[ii] == lexemes[ii]) << lexemes[ii].lexeme;
+        EXPECT_TRUE(expected[ii] == lexemes[ii]) << lexemes[ii];
     }
 }
 
 TEST(LexerTest, TestExpectedLexemes)
 {
     std::stringstream ss;
-    ss << "int main() { return 0; }\n@";
+    ss << "int main() {\nreturn 0; }\n";
     ss.seekg(0);
 
-    Lexer lexer(ss);
-    std::vector<Lexer::Token> lexemes;
+    ErrorReporter errors(std::cout);
+    Lexer lexer(ss, errors);
+    std::vector<Token> lexemes;
     while (lexer.hasNext())
     {
         lexemes.push_back(lexer.next());
     }
-    std::vector<Lexer::Token> expected = {{TokenType::INT, "int"},
-                                          {TokenType::IDENTIFIER, "main"},
-                                          {TokenType::LPAREN, "("},
-                                          {TokenType::RPAREN, ")"},
-                                          {TokenType::LBRACE, "{"},
-                                          {TokenType::RETURN, "return"},
-                                          {TokenType::INTEGER, "0"},
-                                          {TokenType::SEMICOLON, ";"},
-                                          {TokenType::RBRACE, "}"},
-                                          {TokenType::ERROR, "@"},
-                                          {TokenType::EOS, ""}};
+    const std::vector<Token> expected = {
+            {TokenType::INT, "int", {0, 1, 1}},
+            {TokenType::IDENTIFIER, "main", {4, 1, 5}},
+            {TokenType::LPAREN, "(", {8, 1, 9}},
+            {TokenType::RPAREN, ")", {9, 1, 10}},
+            {TokenType::LBRACE, "{", {11, 1, 12}},
+            {TokenType::RETURN, "return", {13, 2, 1}},
+            {TokenType::INTEGER, "0", {20, 2, 8}},
+            {TokenType::SEMICOLON, ";", {21, 2, 9}},
+            {TokenType::RBRACE, "}", {23, 2, 11}},
+            {TokenType::EOS, "", {25, 3, 1}}};
+
     EXPECT_EQ(expected.size(), lexemes.size());
     for (size_t ii = 0; ii < expected.size(); ++ii)
     {
-        EXPECT_TRUE(expected[ii] == lexemes[ii]) << lexemes[ii].lexeme;
+        EXPECT_TRUE(expected[ii] == lexemes[ii]) << lexemes[ii];
     }
 }
