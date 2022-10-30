@@ -2,21 +2,49 @@
 #include <gtest/gtest.h>
 #include <sstream>
 
-TEST(LexerTest, LexerWithRot13Encoding)
+class LexerTest : public ::testing::Test
 {
-    std::stringstream ss;
-    ss << "vag znva() {\nerghea 0; }\n";
-    ss.seekg(0);
+protected:
+    void constructLexer(const char* input, const Lexer::Options& options = {})
+    {
+        mInputStream << input;
+        mInputStream.seekg(0);
 
+        mErrorReporter = std::make_unique<ErrorReporter>(mErrorStream);
+        mLexer =
+                std::make_unique<Lexer>(mInputStream, *mErrorReporter, options);
+    }
+
+    std::vector<Token> lexAll()
+    {
+        std::vector<Token> result;
+        while (mLexer->hasNext())
+            result.push_back(mLexer->next());
+        return result;
+    }
+
+    void TearDown() override
+    {
+        mLexer.release();
+        mErrorReporter.release();
+    }
+
+    std::unique_ptr<Lexer> mLexer;
+    std::stringstream mInputStream;
+    std::stringstream mErrorStream;
+    std::unique_ptr<ErrorReporter> mErrorReporter;
+};
+
+TEST_F(LexerTest, LexerWithRot13Encoding)
+{
     Lexer::Options options;
     options.rot13 = true;
-    ErrorReporter errors(std::cout);
-    Lexer lexer(ss, errors, options);
-    std::vector<Token> lexemes;
-    while (lexer.hasNext())
-    {
-        lexemes.push_back(lexer.next());
-    }
+    constructLexer("vag znva() {\nerghea 0; }\n", options);
+    ASSERT_TRUE(mLexer);
+
+    const auto lexemes = lexAll();
+
+    ASSERT_FALSE(mErrorReporter->hasErrors());
     const std::vector<Token> expected = {
             {TokenType::INT, "int", {0, 1, 1}},
             {TokenType::IDENTIFIER, "main", {4, 1, 5}},
@@ -34,54 +62,39 @@ TEST(LexerTest, LexerWithRot13Encoding)
         EXPECT_TRUE(expected[ii] == lexemes[ii]) << lexemes[ii];
     }
 }
-
-TEST(LexerTest, LexErrors)
+TEST_F(LexerTest, TestExpectedLexemes)
 {
-    std::stringstream ss;
-    ss << "int@";
-    ss.seekg(0);
+    constructLexer("int main() {\nreturn 0; }\n");
+    const auto lexemes = lexAll();
 
-    std::stringstream errorStream;
-    ErrorReporter errors(errorStream);
-    Lexer lexer(ss, errors);
+    const std::vector<Token> expected = {
+            {TokenType::INT, "int", {0, 1, 1}},
+            {TokenType::IDENTIFIER, "main", {4, 1, 5}},
+            {TokenType::LPAREN, "(", {8, 1, 9}},
+            {TokenType::RPAREN, ")", {9, 1, 10}},
+            {TokenType::LBRACE, "{", {11, 1, 12}},
+            {TokenType::RETURN, "return", {13, 2, 1}},
+            {TokenType::INTEGER, "0", {20, 2, 8}},
+            {TokenType::SEMICOLON, ";", {21, 2, 9}},
+            {TokenType::RBRACE, "}", {23, 2, 11}},
+            {TokenType::EOS, "", {25, 3, 1}}};
 
-    while (lexer.hasNext())
-        lexer.next();
+    EXPECT_EQ(expected.size(), lexemes.size());
+    for (size_t ii = 0; ii < expected.size(); ++ii)
+    {
+        EXPECT_TRUE(expected[ii] == lexemes[ii]) << lexemes[ii];
+    }
+}
 
-    ASSERT_TRUE(errors.hasErrors());
-    const auto errorMessage = errorStream.str();
+TEST_F(LexerTest, LexErrors)
+{
+    constructLexer("int@");
+    ASSERT_TRUE(mLexer);
+
+    lexAll();
+
+    ASSERT_TRUE(mErrorReporter->hasErrors());
+    const auto errorMessage = mErrorStream.str();
     ASSERT_STREQ("<source>:1:4: error: stray '@' in program\n",
                  errorMessage.c_str());
-}
-
-TEST(LexerTest, TestExpectedLexemes)
-{
-    std::stringstream ss;
-    ss << "int main() {\nreturn 0; }\n";
-    ss.seekg(0);
-
-    ErrorReporter errors(std::cout);
-    Lexer lexer(ss, errors);
-    std::vector<Token> lexemes;
-    while (lexer.hasNext())
-    {
-        lexemes.push_back(lexer.next());
-    }
-    const std::vector<Token> expected = {
-            {TokenType::INT, "int", {0, 1, 1}},
-            {TokenType::IDENTIFIER, "main", {4, 1, 5}},
-            {TokenType::LPAREN, "(", {8, 1, 9}},
-            {TokenType::RPAREN, ")", {9, 1, 10}},
-            {TokenType::LBRACE, "{", {11, 1, 12}},
-            {TokenType::RETURN, "return", {13, 2, 1}},
-            {TokenType::INTEGER, "0", {20, 2, 8}},
-            {TokenType::SEMICOLON, ";", {21, 2, 9}},
-            {TokenType::RBRACE, "}", {23, 2, 11}},
-            {TokenType::EOS, "", {25, 3, 1}}};
-
-    EXPECT_EQ(expected.size(), lexemes.size());
-    for (size_t ii = 0; ii < expected.size(); ++ii)
-    {
-        EXPECT_TRUE(expected[ii] == lexemes[ii]) << lexemes[ii];
-    }
 }
