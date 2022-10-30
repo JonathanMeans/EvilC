@@ -35,6 +35,25 @@ TEST(LexerTest, LexerWithRot13Encoding)
     }
 }
 
+TEST(LexerTest, LexErrors)
+{
+    std::stringstream ss;
+    ss << "int@";
+    ss.seekg(0);
+
+    std::stringstream errorStream;
+    ErrorReporter errors(errorStream);
+    Lexer lexer(ss, errors);
+
+    while (lexer.hasNext())
+        lexer.next();
+
+    ASSERT_TRUE(errors.hasErrors());
+    const auto errorMessage = errorStream.str();
+    ASSERT_STREQ("<source>:1:4: error: stray '@' in program\n",
+                 errorMessage.c_str());
+}
+
 TEST(LexerTest, TestExpectedLexemes)
 {
     std::stringstream ss;

@@ -18,7 +18,7 @@ void Diagnostic::print(std::ostream& os, const std::string& filename) const
 ErrorReporter::ErrorReporter(std::ostream& outputStream,
                              const std::string& filename) :
     mOutputStream(outputStream),
-    mFileName(filename), mHasErrors(false)
+    mFileName(filename.empty() ? "<source>" : filename), mHasErrors(false)
 {
 }
 

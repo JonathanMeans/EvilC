@@ -23,7 +23,7 @@ class ErrorReporter
 {
 public:
     explicit ErrorReporter(std::ostream& outputStream,
-                           const std::string& filename = "<source>");
+                           const std::string& filename = "");
     void reportDiagnostic(const Diagnostic&);
     bool hasErrors() const;
 
