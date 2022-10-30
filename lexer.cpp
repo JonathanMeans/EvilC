@@ -41,20 +41,6 @@ std::ostream& operator<<(std::ostream& os, const Token& token)
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const Diagnostic& diagnostic)
-{
-    switch (diagnostic.type)
-    {
-    case DiagnosticType::ERROR:
-        os << "error:";
-        break;
-    }
-    os << diagnostic.token.location.line << ":"
-       << diagnostic.token.location.column << ": " << diagnostic.message
-       << "\n";
-    return os;
-}
-
 bool FileLocation::operator==(const FileLocation& rhs) const
 {
     return this->offset == rhs.offset && this->line == rhs.line &&

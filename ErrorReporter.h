@@ -15,19 +15,21 @@ struct Diagnostic
     DiagnosticType type;
     Token token;
     std::string message;
-};
 
-std::ostream& operator<<(std::ostream& os, const Diagnostic& diagnostic);
+    void print(std::ostream& os, const std::string& filename) const;
+};
 
 class ErrorReporter
 {
 public:
-    explicit ErrorReporter(std::ostream& outputStream);
+    explicit ErrorReporter(std::ostream& outputStream,
+                           const std::string& filename = "<source>");
     void reportDiagnostic(const Diagnostic&);
     bool hasErrors() const;
 
 private:
     std::ostream& mOutputStream;
+    const std::string mFileName;
     bool mHasErrors;
 };
 
