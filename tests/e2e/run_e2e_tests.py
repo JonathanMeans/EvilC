@@ -31,8 +31,8 @@ def parse_test(filename) -> TestSpec:
                     value = value.strip()
                     if value == TEST_DELIMITER:
                         value = ""
-                        line = f.readline().strip()
-                        while line and line.strip() != TEST_DELIMITER.strip():
+                        line = f.readline()
+                        while line.strip() and line.strip() != TEST_DELIMITER.strip():
                             value += line
                             line = f.readline()
                     if key == "Returncode":

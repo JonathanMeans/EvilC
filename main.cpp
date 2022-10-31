@@ -33,7 +33,7 @@ int main(int argc, char** argv)
     }
 
     std::filesystem::path inputPath(inputFile);
-    ErrorReporter errors(std::cerr, inputFile);
+    ErrorReporter errors(std::cerr, inputStream, inputFile);
     Lexer lexer(inputStream, errors, {false});
     while (lexer.hasNext())
         lexer.next();

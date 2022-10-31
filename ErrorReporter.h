@@ -16,19 +16,24 @@ struct Diagnostic
     Token token;
     std::string message;
 
-    void print(std::ostream& os, const std::string& filename) const;
+    void print(std::ostream& os,
+               std::istream& filestream,
+               const std::string& filename) const;
 };
 
 class ErrorReporter
 {
 public:
-    explicit ErrorReporter(std::ostream& outputStream,
-                           const std::string& filename = "");
+    ErrorReporter(std::ostream& outputStream,
+                  std::istream& filestream,
+                  const std::string& filename = "");
+
     void reportDiagnostic(const Diagnostic&);
     bool hasErrors() const;
 
 private:
     std::ostream& mOutputStream;
+    std::istream& mFileStream;
     const std::string mFileName;
     bool mHasErrors;
 };

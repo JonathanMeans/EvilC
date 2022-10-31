@@ -3,11 +3,12 @@ CompilerReturncode: 1
 File: main.cpp
 Binary: test.exe
 CompilerErr: --------------
-main.cpp:3:1: error: stray '@' in program
+main.cpp:3:12: error: stray '@' in program
+3 |     return @ 0;
+  |            ^
 --------------
 
 int main()
 {
-@
-	return 0;
+    return @ 0;
 }

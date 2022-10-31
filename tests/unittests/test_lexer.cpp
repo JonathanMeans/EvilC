@@ -10,7 +10,8 @@ protected:
         mInputStream << input;
         mInputStream.seekg(0);
 
-        mErrorReporter = std::make_unique<ErrorReporter>(mErrorStream);
+        mErrorReporter =
+                std::make_unique<ErrorReporter>(mErrorStream, mInputStream);
         mLexer =
                 std::make_unique<Lexer>(mInputStream, *mErrorReporter, options);
     }
@@ -88,13 +89,24 @@ TEST_F(LexerTest, TestExpectedLexemes)
 
 TEST_F(LexerTest, LexErrors)
 {
-    constructLexer("int@");
+    constructLexer(R"(int main()
+{
+    return @ 0;
+})");
     ASSERT_TRUE(mLexer);
 
-    lexAll();
+    const auto tokens = lexAll();
 
-    ASSERT_TRUE(mErrorReporter->hasErrors());
+    EXPECT_TRUE(mErrorReporter->hasErrors());
     const auto errorMessage = mErrorStream.str();
-    ASSERT_STREQ("<source>:1:4: error: stray '@' in program\n",
-                 errorMessage.c_str());
+    const auto expected =
+            R"(<source>:3:12: error: stray '@' in program
+3 |     return @ 0;
+  |            ^
+)";
+    EXPECT_STREQ(expected, errorMessage.c_str());
+
+    // Make sure reporting the error didn't mess up future lexing
+    ASSERT_EQ(11, tokens.size());
+    ASSERT_STREQ("}", tokens[9].lexeme.c_str());
 }
