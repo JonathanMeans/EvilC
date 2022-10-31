@@ -1,4 +1,5 @@
 #include "ErrorReporter.h"
+#include <cassert>
 #include <fstream>
 
 void Diagnostic::print(std::ostream& os,
@@ -21,10 +22,11 @@ void Diagnostic::print(std::ostream& os,
     filestream.seekg(0, std::ios::beg);
     os << token.location.line << " | ";
     const size_t linesToSkip = token.location.line - 1;
-    char buffer[4096]; // TODO: Handle lines of arbitrary length
-    // TODO: Handle EOF condition
+    char buffer[1024]; // Max line length of 510 is already enforced, so this is
+                       // safe
     for (size_t skippedLines = 0; skippedLines < linesToSkip; ++skippedLines)
         filestream.getline(buffer, 4096);
+    assert(filestream.good());
     filestream.getline(buffer, 4096);
     os << buffer << "\n";
 

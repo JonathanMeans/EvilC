@@ -110,3 +110,69 @@ TEST_F(LexerTest, LexErrors)
     ASSERT_EQ(11, tokens.size());
     ASSERT_STREQ("}", tokens[9].lexeme.c_str());
 }
+
+TEST_F(LexerTest, CanHandleMaximumLineLength)
+{
+    // 2.2.4.1:
+    // The implementation shall be able to translate and execute at least one
+    // program that contains at least one instance of every one
+    // of the following limits:
+    // [...]
+    // * 509 characters in a logical source line
+    // We'll be generous and give them an extra character to play with
+    std::vector<char> buffer(510);
+    for (size_t vectorIndex = 0; vectorIndex < buffer.size(); ++vectorIndex)
+    {
+        if (vectorIndex % 2 == 0)
+            buffer[vectorIndex] = ' ';
+        else
+            buffer[vectorIndex] = 'a';
+    }
+    buffer[509] = '\0';
+
+    constructLexer(buffer.data());
+    lexAll();
+
+    ASSERT_FALSE(mErrorReporter->hasErrors());
+}
+
+TEST_F(LexerTest, ErrorOnLineTooLong)
+{
+    // 2.2.4.1:
+    // The implementation shall be able to translate and execute at least one
+    // program that contains at least one instance of every one
+    // of the following limits:
+    // [...]
+    // * 509 characters in a logical source line
+    // We'll be generous and give them an extra character to play with
+    std::vector<char> buffer(513);
+    for (size_t vectorIndex = 0; vectorIndex < buffer.size() - 3; ++vectorIndex)
+    {
+        if (vectorIndex % 2 == 0)
+            buffer[vectorIndex] = ' ';
+        else
+            buffer[vectorIndex] = 'a';
+    }
+    // Invalid characters
+    buffer[510] = 'b';
+    buffer[511] = 'b';
+    buffer[512] = '\0';
+
+    constructLexer(buffer.data());
+
+    try
+    {
+        lexAll();
+        FAIL();
+    }
+    catch (const EnvironmentalLimitsException& e)
+    {
+        ASSERT_STREQ("Line 1 is too long", e.what());
+    }
+    catch (...)
+    {
+        FAIL() << "Unexpected exception\n";
+    }
+
+    ASSERT_FALSE(mErrorReporter->hasErrors());
+}

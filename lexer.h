@@ -4,7 +4,14 @@
 #include "ErrorReporter.h"
 #include "token.h"
 #include <istream>
+#include <stdexcept>
 #include <string>
+
+class EnvironmentalLimitsException : public std::runtime_error
+{
+public:
+    EnvironmentalLimitsException(const char* msg);
+};
 
 class Lexer
 {

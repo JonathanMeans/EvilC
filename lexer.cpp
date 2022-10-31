@@ -28,6 +28,11 @@ const std::map<std::string, TokenType> KEYWORDS = {{"int", TokenType::INT},
                                                     TokenType::RETURN}};
 }
 
+EnvironmentalLimitsException::EnvironmentalLimitsException(const char* msg) :
+    std::runtime_error(msg)
+{
+}
+
 bool Token::operator==(const Token& rhs) const
 {
     return this->type == rhs.type && this->lexeme == rhs.lexeme &&
@@ -70,6 +75,16 @@ void FileLocation::increment(char c)
     else
     {
         column++;
+    }
+    if (column >= 512)
+    {
+        // Max line length is 510 (one more than 509 in 2.2.4.1)
+        // One more for EOF character
+        // And columns start at 1, rather than 0, so plus one for that
+        // 512 total
+        std::stringstream ss;
+        ss << "Line " << line << " is too long";
+        throw EnvironmentalLimitsException(ss.str().c_str());
     }
 }
 
