@@ -91,6 +91,7 @@ void FileLocation::increment(char c)
 Lexer::Lexer(std::istream& source,
              ErrorReporter& errors,
              const Options& options) :
+    mHasNext(true),
     mSource(source),
     mErrors(errors), mOptions(options), mLocation()
 {
@@ -102,26 +103,143 @@ void Lexer::skipWhitespace()
         get();
 }
 
-char Lexer::peek() const
+char Lexer::peek()
 {
     char c = mSource.peek();
     if (mOptions.rot13)
         c = rot13(c);
+    if (c == '?')
+    {
+        const auto startingPosition = mSource.tellg();
+        char trigraph[3] = {};
+        trigraph[0] = mSource.get();
+        trigraph[1] = mSource.get();
+        trigraph[2] = mSource.get();
+        if (!mSource.good())
+        {
+            mSource.clear();
+            mSource.seekg(startingPosition, std::ios::beg);
+            return c;
+        }
+        assert(trigraph[0] == '?');
+        if (trigraph[1] == '?')
+        {
+            switch (trigraph[2])
+            {
+            case '=':
+                c = '#';
+                break;
+            case '(':
+                c = '[';
+                break;
+            case '/':
+                c = '\\';
+                break;
+            case ')':
+                c = ']';
+                break;
+            case '\'':
+                c = '^';
+                break;
+            case '<':
+                c = '{';
+                break;
+            case '!':
+                c = '|';
+                break;
+            case '>':
+                c = '}';
+                break;
+            case '-':
+                c = '~';
+                break;
+            default:
+                break;
+            }
+        }
+        mSource.seekg(startingPosition, std::ios::beg);
+    }
+
     return c;
 }
 
 char Lexer::get()
 {
     char c = mSource.get();
+    const auto originalPosition = mSource.tellg();
+    bool isTrigraph = false;
     if (mOptions.rot13)
         c = rot13(c);
+    if (c == '?')
+    {
+        char trigraph[3] = {};
+        trigraph[0] = c;
+        trigraph[1] = mSource.get();
+        trigraph[2] = mSource.get();
+        if (!mSource.good())
+        {
+            mSource.clear();
+            mSource.seekg(originalPosition, std::ios::beg);
+            mLocation.increment(c);
+            return c;
+        }
+        assert(trigraph[0] == '?');
+        if (trigraph[1] == '?')
+        {
+            isTrigraph = true;
+            switch (trigraph[2])
+            {
+            case '=':
+                c = '#';
+                break;
+            case '(':
+                c = '[';
+                break;
+            case '/':
+                c = '\\';
+                break;
+            case ')':
+                c = ']';
+                break;
+            case '\'':
+                c = '^';
+                break;
+            case '<':
+                c = '{';
+                break;
+            case '!':
+                c = '|';
+                break;
+            case '>':
+                c = '}';
+                break;
+            case '-':
+                c = '~';
+                break;
+            default:
+                isTrigraph = false;
+                break;
+            }
+            if (!isTrigraph)
+            {
+                mSource.seekg(-2, std::ios::cur);
+            }
+        }
+    }
+
     mLocation.increment(c);
+    if (isTrigraph)
+    {
+        // Advance twice more to eat up the other chars
+        mLocation.increment(c);
+        mLocation.increment(c);
+    }
     return c;
 }
 
 bool Lexer::hasNext() const
 {
-    return mSource.good();
+    return mHasNext;
 }
 
 Token Lexer::next()
@@ -161,10 +279,27 @@ Token Lexer::next()
         return {TokenType::LPAREN, "(", tokenLocation};
     else if (c == ')')
         return {TokenType::RPAREN, ")", tokenLocation};
+    else if (c == '[')
+        return {TokenType::LBRACKET, "[", tokenLocation};
+    else if (c == ']')
+        return {TokenType::RBRACKET, "]", tokenLocation};
+    else if (c == '#')
+        return {TokenType::HASH, "#", tokenLocation};
+    else if (c == '^')
+        return {TokenType::CARAT, "^", tokenLocation};
+    else if (c == '|')
+        return {TokenType::PIPE, "|", tokenLocation};
+    else if (c == '~')
+        return {TokenType::TILDE, "~", tokenLocation};
     else if (c == ';')
         return {TokenType::SEMICOLON, ";", tokenLocation};
+    else if (c == '?')
+        return {TokenType::QUESTION, "?", tokenLocation};
     else if (c == EOF)
+    {
+        mHasNext = false;
         return {TokenType::EOS, "", tokenLocation};
+    }
     else
     {
         const Token result{TokenType::ERROR, std::string(1, c), tokenLocation};

@@ -30,10 +30,11 @@ public:
     Token next();
 
 private:
-    char peek() const;
+    char peek();
     char get();
     void skipWhitespace();
 
+    bool mHasNext;
     std::istream& mSource;
     ErrorReporter& mErrors;
     Options mOptions;

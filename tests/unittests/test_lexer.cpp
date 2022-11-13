@@ -63,6 +63,7 @@ TEST_F(LexerTest, LexerWithRot13Encoding)
         EXPECT_TRUE(expected[ii] == lexemes[ii]) << lexemes[ii];
     }
 }
+
 TEST_F(LexerTest, TestExpectedLexemes)
 {
     constructLexer("int main() {\nreturn 0; }\n");
@@ -79,6 +80,48 @@ TEST_F(LexerTest, TestExpectedLexemes)
             {TokenType::SEMICOLON, ";", {21, 2, 9}},
             {TokenType::RBRACE, "}", {23, 2, 11}},
             {TokenType::EOS, "", {25, 3, 1}}};
+
+    EXPECT_EQ(expected.size(), lexemes.size());
+    for (size_t ii = 0; ii < expected.size(); ++ii)
+    {
+        EXPECT_TRUE(expected[ii] == lexemes[ii]) << lexemes[ii];
+    }
+}
+
+TEST_F(LexerTest, TestQuestionMarks)
+{
+    constructLexer("??");
+    const auto lexemes = lexAll();
+
+    const std::vector<Token> expected = {{TokenType::QUESTION, "?", {0, 1, 1}},
+                                         {TokenType::QUESTION, "?", {1, 1, 2}},
+                                         {TokenType::EOS, "", {2, 1, 3}}};
+    EXPECT_EQ(expected.size(), lexemes.size());
+    for (size_t ii = 0; ii < expected.size(); ++ii)
+    {
+        EXPECT_TRUE(expected[ii] == lexemes[ii]) << lexemes[ii];
+    }
+}
+
+TEST_F(LexerTest, TestTrigraphs)
+{
+    constructLexer("??=??(??/??)??'??<??!??>??-??1");
+    const auto lexemes = lexAll();
+
+    const std::vector<Token> expected = {
+            {TokenType::HASH, "#", {0, 1, 1}},
+            {TokenType::LBRACKET, "[", {3, 1, 4}},
+            {TokenType::ERROR, "\\", {6, 1, 7}},
+            {TokenType::RBRACKET, "]", {9, 1, 10}},
+            {TokenType::CARAT, "^", {12, 1, 13}},
+            {TokenType::LBRACE, "{", {15, 1, 16}},
+            {TokenType::PIPE, "|", {18, 1, 19}},
+            {TokenType::RBRACE, "}", {21, 1, 22}},
+            {TokenType::TILDE, "~", {24, 1, 25}},
+            {TokenType::QUESTION, "?", {27, 1, 28}},
+            {TokenType::QUESTION, "?", {28, 1, 29}},
+            {TokenType::INTEGER, "1", {29, 1, 30}},
+            {TokenType::EOS, "", {30, 1, 31}}};
 
     EXPECT_EQ(expected.size(), lexemes.size());
     for (size_t ii = 0; ii < expected.size(); ++ii)

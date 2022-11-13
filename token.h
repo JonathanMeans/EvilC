@@ -22,9 +22,16 @@ enum class TokenType
     // Punctuators
     LBRACE,
     RBRACE,
+    LBRACKET,
+    RBRACKET,
     LPAREN,
     RPAREN,
     SEMICOLON,
+    HASH,
+    CARAT,
+    PIPE,
+    TILDE,
+    QUESTION,
 
     // Constants
     INTEGER,

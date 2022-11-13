@@ -26,6 +26,8 @@ void Diagnostic::print(std::ostream& os,
                        // safe
     for (size_t skippedLines = 0; skippedLines < linesToSkip; ++skippedLines)
         filestream.getline(buffer, 4096);
+    if (!filestream.good())
+        int x = 0;
     assert(filestream.good());
     filestream.getline(buffer, 4096);
     os << buffer << "\n";
