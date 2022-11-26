@@ -100,82 +100,26 @@ Lexer::Lexer(std::istream& source,
 void Lexer::skipWhitespace()
 {
     while (isspace(mSource.peek()))
-        get();
+        getNextChar();
 }
 
-char Lexer::peek()
-{
-    char c = mSource.peek();
-    if (mOptions.rot13)
-        c = rot13(c);
-    if (c == '?')
-    {
-        const auto startingPosition = mSource.tellg();
-        char trigraph[3] = {};
-        trigraph[0] = mSource.get();
-        trigraph[1] = mSource.get();
-        trigraph[2] = mSource.get();
-        if (!mSource.good())
-        {
-            mSource.clear();
-            mSource.seekg(startingPosition, std::ios::beg);
-            return c;
-        }
-        assert(trigraph[0] == '?');
-        if (trigraph[1] == '?')
-        {
-            switch (trigraph[2])
-            {
-            case '=':
-                c = '#';
-                break;
-            case '(':
-                c = '[';
-                break;
-            case '/':
-                c = '\\';
-                break;
-            case ')':
-                c = ']';
-                break;
-            case '\'':
-                c = '^';
-                break;
-            case '<':
-                c = '{';
-                break;
-            case '!':
-                c = '|';
-                break;
-            case '>':
-                c = '}';
-                break;
-            case '-':
-                c = '~';
-                break;
-            default:
-                break;
-            }
-        }
-        mSource.seekg(startingPosition, std::ios::beg);
-    }
-
-    return c;
-}
-
-char Lexer::get()
+char Lexer::getNextChar()
 {
     char c = mSource.get();
     const auto originalPosition = mSource.tellg();
     bool isTrigraph = false;
     if (mOptions.rot13)
         c = rot13(c);
+
+    // Handle trigraph sequences. See 2.2.1.1
     if (c == '?')
     {
         char trigraph[3] = {};
         trigraph[0] = c;
         trigraph[1] = mSource.get();
         trigraph[2] = mSource.get();
+
+        // If we hit the end of the stream, not enough chars to make a trigraph, so go back and return original ?
         if (!mSource.good())
         {
             mSource.clear();
@@ -183,7 +127,7 @@ char Lexer::get()
             mLocation.increment(c);
             return c;
         }
-        assert(trigraph[0] == '?');
+
         if (trigraph[1] == '?')
         {
             isTrigraph = true;
@@ -247,13 +191,13 @@ Token Lexer::next()
     std::string lexeme;
     skipWhitespace();
     const auto tokenLocation = mLocation;
-    char c = get();
+    char c = getNextChar();
     if (isalpha(c))
     {
         lexeme.push_back(c);
-        while (isalnum(peek()))
+        while (isalnum(mSource.peek()))
         {
-            lexeme.push_back(get());
+            lexeme.push_back(getNextChar());
         }
 
         const auto keywordIt = KEYWORDS.find(lexeme);
@@ -265,9 +209,9 @@ Token Lexer::next()
     else if (isdigit(c))
     {
         lexeme.push_back(c);
-        while (isdigit(peek()))
+        while (isdigit(mSource.peek()))
         {
-            lexeme.push_back(get());
+            lexeme.push_back(getNextChar());
         }
         return {TokenType::INTEGER, lexeme, tokenLocation};
     }

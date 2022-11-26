@@ -30,8 +30,7 @@ public:
     Token next();
 
 private:
-    char peek();
-    char get();
+    char getNextChar();
     void skipWhitespace();
 
     bool mHasNext;
